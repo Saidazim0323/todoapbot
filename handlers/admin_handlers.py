@@ -8,9 +8,7 @@ admin_router = Router()
 
 def register_admin_handlers(dp):
     dp.include_router(admin_router)
-@admin_router.message(Command("start"))
-async def start_handler(msg: Message):
-    await msg.answer("Assalomu alaykum! Botdan foydalanishni boshlashingiz mumkin 😊")
+
 
 # Faqat /admin komandasi kelganda ishlaydi
 @admin_router.message(Command("admin"))
