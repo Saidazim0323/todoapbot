@@ -1,24 +1,17 @@
 import asyncio
-from database import connect_db
-from aiogram import Bot
-from config import BOT_TOKEN
+from datetime import datetime
+from database import get_db
 
-bot = Bot(token=BOT_TOKEN)
+async def send_reminders(bot):
+    db = await get_db()
+    rows = await db.fetch("SELECT user_id, text FROM reminders WHERE remind_at <= NOW()")
+    for row in rows:
+        try:
+            await bot.send_message(row["user_id"], f"🔔 Eslatma: {row['text']}")
+        except:
+            pass
 
-async def send_daily_reminders():
+async def start_scheduler(bot):
     while True:
-        conn = await connect_db()
-        users = await conn.fetch("SELECT user_id, reminder_hour FROM users")
-        await conn.close()
-
-        from datetime import datetime
-        now_hour = datetime.now().hour
-
-        for u in users:
-            if u["reminder_hour"] == now_hour:
-                try:
-                    await bot.send_message(u["user_id"], "⏰ Eslatma! Vazifalaringizni tekshiring.")
-                except:
-                    pass
-
-        await asyncio.sleep(3600)
+        await send_reminders(bot)
+        await asyncio.sleep(60)
