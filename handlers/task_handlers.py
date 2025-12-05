@@ -18,3 +18,8 @@ async def add_task(msg: types.Message):
         )
 
     await msg.answer("✅ Vazifa qo‘shildi.")
+
+
+# 🔥 MUHIM: Bu funksiyani qo‘shmasang import error bo‘ladi!
+def register_task_handlers(dp):
+    dp.include_router(task_router)
