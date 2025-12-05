@@ -1,8 +1,14 @@
-from aiogram import Router, types
-from config import ADMIN_ID
+from aiogram import Router
+from aiogram.types import Message
+from config import SUPER_ADMIN_ID
 
-admin_router = Router()
+router = Router()
 
-@admin_router.message(lambda m: m.from_user.id == ADMIN_ID)
-async def admin_panel(msg: types.Message):
-    await msg.answer("🔐 Admin paneliga xush kelibsiz!")
+def register_admin_handlers(dp):
+    dp.include_router(router)
+
+@router.message()
+async def admin_panel(msg: Message):
+    if msg.from_user.id != SUPER_ADMIN_ID:
+        return
+    await msg.answer("Admin panelga xush kelibsiz!")
