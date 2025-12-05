@@ -1,14 +1,17 @@
+# handlers/admin_handlers.py
 from aiogram import Router
 from aiogram.types import Message
 from config import SUPER_ADMIN_ID
 
-router = Router()
+admin_router = Router()
 
 def register_admin_handlers(dp):
-    dp.include_router(router)
+    dp.include_router(admin_router)
 
-@router.message()
+
+@admin_router.message()
 async def admin_panel(msg: Message):
     if msg.from_user.id != SUPER_ADMIN_ID:
         return
-    await msg.answer("Admin panelga xush kelibsiz!")
+    
+    await msg.answer("🔐 Admin panelga xush kelibsiz!")
