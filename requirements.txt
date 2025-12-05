@@ -1,9 +1,10 @@
-fastapi
-uvicorn
-python-dotenv
-pydantic==1.10.14         # Pydantic 2.x Rust talab qiladi
-pydantic-settings==2.0.3  # Rustsiz ishlaydi
-orjson==3.9.15            # Ba’zan Rust talab qiladi → ishlamasa olib tashlang
-httpx
+fastapi==0.109.0
+uvicorn==0.27.0.post1
 aiogram==3.3.0
-jinja2
+httpx==0.27.0
+pydantic==1.10.14
+pydantic-settings==1.10.1
+SQLAlchemy==1.4.52
+asyncpg==0.29.0
+python-dotenv==1.0.1
+jinja2==3.1.3
