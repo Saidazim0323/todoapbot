@@ -5,6 +5,7 @@ from aiogram.types import Update
 from aiohttp import web
 
 from config import BOT_TOKEN, WEBHOOK_URL
+from handlers.start_handlers import register_start_handlers
 from handlers.admin_handlers import register_admin_handlers
 from handlers.task_handlers import register_task_handlers
 from handlers.habit_handlers import register_habit_handlers
@@ -16,6 +17,7 @@ dp = Dispatcher()
 
 
 def register_all_handlers():
+    register_start_handlers(dp)
     register_admin_handlers(dp)
     register_task_handlers(dp)
     register_habit_handlers(dp)
