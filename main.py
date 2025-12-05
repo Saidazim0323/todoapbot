@@ -1,3 +1,4 @@
+import os
 import asyncio
 from aiogram import Bot, Dispatcher
 from aiogram.types import Update
@@ -14,7 +15,6 @@ bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
 
-# --- Register all handlers ---
 def register_all_handlers():
     register_admin_handlers(dp)
     register_task_handlers(dp)
@@ -22,7 +22,6 @@ def register_all_handlers():
     register_reminder_handlers(dp)
 
 
-# --- Webhook handler ---
 async def webhook_handler(request: web.Request):
     data = await request.json()
     update = Update(**data)
@@ -33,10 +32,8 @@ async def webhook_handler(request: web.Request):
 async def on_startup(app):
     register_all_handlers()
 
-    # Set webhook
     await bot.set_webhook(WEBHOOK_URL)
 
-    # Start scheduler
     asyncio.create_task(start_scheduler(bot))
 
 
@@ -44,7 +41,9 @@ def main():
     app = web.Application()
     app.router.add_post("/", webhook_handler)
     app.on_startup.append(on_startup)
-    web.run_app(app, port=8000)
+
+    port = int(os.getenv("PORT", 8000))   # Render uchun muhim
+    web.run_app(app, host="0.0.0.0", port=port)
 
 
 if __name__ == "__main__":
