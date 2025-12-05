@@ -1,11 +1,20 @@
-from aiogram import Router, types, F
+# handlers/task_handlers.py
+import logging
+from aiogram import Router, types
+from aiogram.filters import Command
 from database import create_pool
 
+logger = logging.getLogger(__name__)
 task_router = Router()
 
-@task_router.message(F.text.startswith("/task"))
+def register_task_handlers(dp):
+    dp.include_router(task_router)
+
+@task_router.message(Command("task"))
 async def add_task(msg: types.Message):
-    title = msg.text.replace("/task", "").strip()
+    logger.info("add_task called: user=%s text=%s", getattr(msg.from_user, "id", None), msg.text)
+    text = msg.text or ""
+    title = text.replace("/task", "", 1).strip()
 
     if not title:
         return await msg.answer("Vazifa yozing: /task Kitob o‘qish")
@@ -18,8 +27,3 @@ async def add_task(msg: types.Message):
         )
 
     await msg.answer("✅ Vazifa qo‘shildi.")
-
-
-# 🔥 MUHIM: Bu funksiyani qo‘shmasang import error bo‘ladi!
-def register_task_handlers(dp):
-    dp.include_router(task_router)
