@@ -1,5 +1,5 @@
 from aiogram import Router, types
-from database import connect_db
+from database import create_pool
 
 task_router = Router()
 
@@ -9,8 +9,13 @@ async def add_task(msg: types.Message):
     if not title:
         return await msg.answer("Vazifa yozing: /task Kitob o‘qish")
 
-    conn = await connect_db()
-    await conn.execute("INSERT INTO tasks (user_id, title) VALUES ($1,$2)", msg.from_user.id, title)
-    await conn.close()
+    pool = await create_pool()
+
+    async with pool.acquire() as conn:
+        await conn.execute(
+            "INSERT INTO tasks (user_id, title) VALUES ($1, $2)",
+            msg.from_user.id,
+            title
+        )
 
     await msg.answer("✅ Vazifa qo‘shildi.")
