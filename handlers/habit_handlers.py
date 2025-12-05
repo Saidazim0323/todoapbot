@@ -1,14 +1,12 @@
-from aiogram import Router, types
-from database import connect_db
+from aiogram import Router
+from aiogram.types import Message
 
-habit_router = Router()
+router = Router()
 
-@habit_router.message(commands=["habit"])
-async def add_habit(msg: types.Message):
-    habit = msg.text.replace("/habit", "").strip()
+def register_habit_handlers(dp):
+    dp.include_router(router)
 
-    conn = await connect_db()
-    await conn.execute("INSERT INTO habits (user_id, habit) VALUES ($1,$2)", msg.from_user.id, habit)
-    await conn.close()
-
-    await msg.answer("💪 Odatingiz qo‘shildi!")
+@router.message()
+async def habits(msg: Message):
+    if msg.text == "/habit":
+        await msg.answer("🔹 Bu yerda odatlar bo'ladi.")
