@@ -1,12 +1,23 @@
-from aiogram import Router
-from aiogram.types import Message
+from aiogram import Router, types, F
+from database import create_pool
 
-router = Router()
+habit_router = Router()
 
 def register_habit_handlers(dp):
-    dp.include_router(router)
+    dp.include_router(habit_router)
 
-@router.message()
-async def habits(msg: Message):
-    if msg.text == "/habit":
-        await msg.answer("🔹 Bu yerda odatlar bo'ladi.")
+@habit_router.message(F.text.startswith("/habit"))
+async def add_habit(msg: types.Message):
+    habit = msg.text.replace("/habit", "").strip()
+
+    if not habit:
+        return await msg.answer("❌ Odat kiriting. Masalan: /habit Meditatsiya")
+
+    pool = await create_pool()
+    async with pool.acquire() as conn:
+        await conn.execute(
+            "INSERT INTO habits (user_id, habit) VALUES ($1, $2)",
+            msg.from_user.id, habit
+        )
+
+    await msg.answer(f"💪 Odat qo‘shildi: {habit}")
