@@ -1,17 +1,23 @@
 import asyncio
 from datetime import datetime
-from database import get_db
+from database import create_pool
 
 async def send_reminders(bot):
-    db = await get_db()
-    rows = await db.fetch("SELECT user_id, text FROM reminders WHERE remind_at <= NOW()")
+    pool = await create_pool()
+
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(
+            "SELECT user_id, text FROM reminders WHERE remind_at <= NOW()"
+        )
+
     for row in rows:
         try:
             await bot.send_message(row["user_id"], f"🔔 Eslatma: {row['text']}")
-        except:
-            pass
+        except Exception as e:
+            print("Xato:", e)
+
 
 async def start_scheduler(bot):
     while True:
         await send_reminders(bot)
-        await asyncio.sleep(60)
+        await asyncio.sleep(60)   # har 1 daqiqada tekshiradi
