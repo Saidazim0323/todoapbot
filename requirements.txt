@@ -1,7 +1,9 @@
-aiogram==3.5.0
 fastapi
 uvicorn
-gunicorn
-psycopg2-binary
-sqlalchemy
 python-dotenv
+pydantic==1.10.14         # Pydantic 2.x Rust talab qiladi
+pydantic-settings==2.0.3  # Rustsiz ishlaydi
+orjson==3.9.15            # Ba’zan Rust talab qiladi → ishlamasa olib tashlang
+httpx
+aiogram==3.3.0
+jinja2
