@@ -1,46 +1,51 @@
 import asyncio
-from aiogram import Bot, Dispatcher, types
-from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
+from aiogram import Bot, Dispatcher
+from aiogram.types import Update
 from aiohttp import web
 
-from config import BOT_TOKEN, WEBHOOK_URL, WEBAPP_HOST, WEBAPP_PORT
-from handlers.admin_handlers import admin_router
-from handlers.task_handlers import task_router
-from handlers.habit_handlers import habit_router
-from handlers.reminder_handlers import reminder_router
-from scheduler import send_daily_reminders
-from database import create_tables
+from config import BOT_TOKEN, WEBHOOK_URL
+from handlers.admin_handlers import register_admin_handlers
+from handlers.task_handlers import register_task_handlers
+from handlers.habit_handlers import register_habit_handlers
+from handlers.reminder_handlers import register_reminder_handlers
+from scheduler import start_scheduler
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
-dp.include_router(admin_router)
-dp.include_router(task_router)
-dp.include_router(habit_router)
-dp.include_router(reminder_router)
+
+# --- Register all handlers ---
+def register_all_handlers():
+    register_admin_handlers(dp)
+    register_task_handlers(dp)
+    register_habit_handlers(dp)
+    register_reminder_handlers(dp)
+
+
+# --- Webhook handler ---
+async def webhook_handler(request: web.Request):
+    data = await request.json()
+    update = Update(**data)
+    await dp.feed_update(bot, update)
+    return web.Response(text="OK")
 
 
 async def on_startup(app):
+    register_all_handlers()
+
+    # Set webhook
     await bot.set_webhook(WEBHOOK_URL)
-    await create_tables()
-    asyncio.create_task(send_daily_reminders())
+
+    # Start scheduler
+    asyncio.create_task(start_scheduler(bot))
 
 
-async def on_shutdown(app):
-    await bot.delete_webhook()
-
-
-async def main():
+def main():
     app = web.Application()
-    webhook_handler = SimpleRequestHandler(dispatcher=dp, bot=bot)
-    webhook_handler.register(app, path="/webhook")
-    setup_application(app, dp, bot=bot)
-
+    app.router.add_post("/", webhook_handler)
     app.on_startup.append(on_startup)
-    app.on_shutdown.append(on_shutdown)
-
-    web.run_app(app, host=WEBAPP_HOST, port=WEBAPP_PORT)
+    web.run_app(app, port=8000)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
