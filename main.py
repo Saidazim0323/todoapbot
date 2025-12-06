@@ -5,13 +5,14 @@ from aiogram.types import Update
 from aiohttp import web
 
 from config import BOT_TOKEN, WEBHOOK_URL
+from database import create_tables
+
 from handlers.start_handlers import register_start_handlers
 from handlers.admin_handlers import register_admin_handlers
 from handlers.task_handlers import register_task_handlers
 from handlers.habit_handlers import register_habit_handlers
 from handlers.reminder_handlers import register_reminder_handlers
 from scheduler import start_scheduler
-from database import create_tables      # <-- BU YERNI QO‘SH
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
@@ -34,7 +35,7 @@ async def webhook_handler(request):
 
 async def on_startup(app):
     register_all_handlers()
-    await create_tables()               # <-- BU YERNI HAM QO‘SH
+    await create_tables()   # <-- jadval yaratish
     await bot.set_webhook(WEBHOOK_URL)
     asyncio.create_task(start_scheduler(bot))
 
